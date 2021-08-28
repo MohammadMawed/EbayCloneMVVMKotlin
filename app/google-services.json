@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "127016821164",
+    "firebase_url": "https://login-with-firebase-6dae8-default-rtdb.firebaseio.com",
+    "project_id": "login-with-firebase-6dae8",
+    "storage_bucket": "login-with-firebase-6dae8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127016821164:android:eea2fb5f69a0cde1905a09",
+        "android_client_info": {
+          "package_name": "com.mawed.firebaselogin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiepONcE1SgkYDMHFrkcxF4eWk9J2Kq8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127016821164:android:60065a5330432a67905a09",
+        "android_client_info": {
+          "package_name": "com.mohammadmawed.ebayclonemvvmkotlin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127016821164-0nf1d3bnmf5d0c5ej7lfkopv4mk6548n.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.mohammadmawed.ebayclonemvvmkotlin",
+            "certificate_hash": "3d09364260fc3e0c599a4613af021f52ba2b4d44"
+          }
+        },
+        {
+          "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiepONcE1SgkYDMHFrkcxF4eWk9J2Kq8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:127016821164:android:649d1197410a3a57905a09",
+        "android_client_info": {
+          "package_name": "com.mohammadmawed.ebayclonemvvvm"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCiepONcE1SgkYDMHFrkcxF4eWk9J2Kq8U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "127016821164-upg1l65dnd9ntevkjom7ccc1v1vb4rc6.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
