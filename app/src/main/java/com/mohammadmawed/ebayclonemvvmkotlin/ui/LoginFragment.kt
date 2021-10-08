@@ -1,6 +1,5 @@
 package com.mohammadmawed.ebayclonemvvmkotlin.ui
 
-
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -17,15 +17,14 @@ import com.mohammadmawed.ebayclonemvvmkotlin.R
 
 class LoginFragment : Fragment() {
 
-    private var emailEditText: EditText? = null
+    private lateinit var emailEditText: EditText
     private lateinit var passwordEditText: EditText
-    private var loginButton: Button? = null
+    private lateinit var loginButton: Button
     private var signupButton: Button? = null
     private var resetPasswordButton:Button? = null
-
+    private lateinit var progressBar: ProgressBar
 
     private lateinit var viewModel: ViewModel
-
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun onCreateView(
@@ -38,30 +37,38 @@ class LoginFragment : Fragment() {
         emailEditText = view.findViewById(R.id.username)
         passwordEditText = view.findViewById(R.id.password)
         loginButton = view.findViewById(R.id.login)
+        progressBar = view.findViewById(R.id.loading)
 
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
 
-        loginButton?.setOnClickListener(View.OnClickListener {
-            val email = emailEditText!!.text.toString()
-            val password = passwordEditText.text.toString()
-            viewModel.login(email, password)
+        loginButton.setOnClickListener(View.OnClickListener {
+            progressBar.visibility = View.VISIBLE
+            val email = emailEditText.text.toString().trim()
+            val password = passwordEditText.text.toString().trim()
+            if (email.isNotEmpty() && password.isNotEmpty()){
+                viewModel.login(email, password)
+            }else{
+                Toast.makeText(activity, "Please enter your credential!", Toast.LENGTH_LONG).show()
+                progressBar.visibility = View.GONE
+            }
         })
 
-        viewModel.userData.observe(viewLifecycleOwner, {
+        viewModel.userDataLiveData.observe(viewLifecycleOwner, {
              firebaseUser ->
                 if (firebaseUser != null) {
+                    progressBar.visibility = View.GONE
                     Navigation.findNavController(requireView())
                         .navigate(R.id.action_loginFragment3_to_mainUIFragment)
                 }
             })
-        viewModel.password.observe(viewLifecycleOwner,{
+        viewModel.passwordLiveData.observe(viewLifecycleOwner,{
             password ->
             if (password == false){
-                Toast.makeText(activity, "Login Failed", Toast.LENGTH_LONG).show()
+                progressBar.visibility = View.GONE
+                Toast.makeText(activity, "Login Failed, Please try again!", Toast.LENGTH_LONG).show()
             }
         })
         return view
     }
-
 }

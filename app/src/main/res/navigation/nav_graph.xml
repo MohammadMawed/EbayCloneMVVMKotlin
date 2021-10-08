@@ -4,20 +4,49 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
 
-    app:startDestination="@id/loginFragment">
+    app:startDestination="@id/splashScreenFragment">
 
     <fragment
         android:id="@+id/mainUIFragment"
         android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.MainUIFragment"
         android:label="fragment_main_u_i"
-        tools:layout="@layout/fragment_main_u_i" />
+        tools:layout="@layout/fragment_main_u_i">
+        <action
+            android:id="@+id/action_mainUIFragment_self"
+            app:popUpTo="@id/mainUIFragment" />
+        <action
+            android:id="@+id/action_mainUIFragment_to_settingFragment"
+            app:destination="@id/settingFragment" />
+    </fragment>
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.LoginFragment"
-        android:label="LoginFragment" >
+        android:label="LoginFragment"
+        tools:layout="@layout/fragment_login">
         <action
             android:id="@+id/action_loginFragment3_to_mainUIFragment"
             app:destination="@id/mainUIFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/splashScreenFragment"
+        android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.SplashScreenFragment"
+        android:label="fragment_splash_screen"
+        tools:layout="@layout/fragment_splash_screen">
+        <action
+            android:id="@+id/action_splashScreenFragment_to_mainUIFragment"
+            app:destination="@id/mainUIFragment" />
+        <action
+            android:id="@+id/action_splashScreenFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/settingFragment"
+        android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.SettingFragment"
+        android:label="fragment_setting"
+        tools:layout="@layout/fragment_setting" >
+        <action
+            android:id="@+id/action_settingFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
 
 </navigation>
