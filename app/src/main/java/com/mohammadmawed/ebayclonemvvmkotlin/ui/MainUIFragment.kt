@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.google.firebase.auth.FirebaseAuth
 import com.mohammadmawed.ebayclonemvvmkotlin.R
 import com.squareup.picasso.Picasso
@@ -22,6 +23,7 @@ class MainUIFragment : Fragment() {
     private lateinit var usernameTextView: TextView
     private lateinit var profilePic: ImageView
     private lateinit var recyclerView: RecyclerView
+    private lateinit var swipeLayout: SwipeRefreshLayout
     private lateinit var offerAdapter: OfferAdapter
 
 
@@ -38,13 +40,23 @@ class MainUIFragment : Fragment() {
         usernameTextView = view.findViewById(R.id.usernameTextView)
         profilePic = view.findViewById(R.id.profilePic)
         recyclerView = view.findViewById(R.id.recyclerView)
+        swipeLayout = view.findViewById(R.id.swipeLayout)
 
         val context: Context = container!!.context
 
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.setHasFixedSize(true)
 
+        swipeLayout.setOnRefreshListener {
 
+            viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
+                offerAdapter = OfferAdapter(arrayList)
+                recyclerView.adapter = offerAdapter
+                offerAdapter.notifyDataSetChanged()
+
+                swipeLayout.isRefreshing = false
+            })
+        }
 
         profilePic.setOnClickListener(View.OnClickListener {
             findNavController().navigate(R.id.action_mainUIFragment_to_settingFragment)
@@ -62,22 +74,20 @@ class MainUIFragment : Fragment() {
             viewModel.loadData()
         }
 
-        viewModel.usernameLiveData.observe(viewLifecycleOwner, {
-            username ->
+        viewModel.usernameLiveData.observe(viewLifecycleOwner, { username ->
             usernameTextView.text = username
         })
 
-        viewModel.userProfileUriLiveData.observe(viewLifecycleOwner, {
-                profile ->
+        viewModel.userProfileUriLiveData.observe(viewLifecycleOwner, { profile ->
             Picasso.get().load(profile).into(profilePic)
         })
 
-        viewModel.listLiveData.observe(viewLifecycleOwner, {
-            arrayList ->
+        viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
             offerAdapter = OfferAdapter(arrayList)
             recyclerView.adapter = offerAdapter
             offerAdapter.notifyDataSetChanged()
         })
+
         return view
     }
 

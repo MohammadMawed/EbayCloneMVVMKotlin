@@ -1,19 +1,25 @@
 package com.mohammadmawed.ebayclonemvvmkotlin.ui
 
 import android.annotation.SuppressLint
+import android.app.Application
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.Target
 import com.mohammadmawed.ebayclonemvvmkotlin.R
 import com.squareup.picasso.Picasso
 
 class OfferAdapter(private val dataList: ArrayList<OffersModelClass>): RecyclerView.Adapter<OfferAdapter.mViewHolder>() {
 
-    private lateinit var viewModel: ViewModel
+    private var viewModel: ViewModel = ViewModel(application = Application())
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): OfferAdapter.mViewHolder {
 
@@ -22,19 +28,18 @@ class OfferAdapter(private val dataList: ArrayList<OffersModelClass>): RecyclerV
         return mViewHolder(itemView)
     }
 
-    @SuppressLint("SetTextI18n")
+    @SuppressLint("SetTextI18n", "CheckResult")
     override fun onBindViewHolder(holder: OfferAdapter.mViewHolder, position: Int) {
         val data: OffersModelClass = dataList[position]
 
-        val timeAgo: String = data.time?.let { viewModel.calculateTimeAge(it) }.toString()
         holder.title.text = data.title
-        holder.time.text = timeAgo
+        holder.time.text = data.Time
         holder.priceView.text = data.price.toString() + "€"
         holder.location.text = data.city
         val userID: String? = data.userID
         val imageID: String? = data.imageID
-        val uri = Uri.parse(imageID)
-        Picasso.get().load(uri).into(holder.imageView)
+        val uri = Uri.parse(data.ImageUri)
+        Glide.with(holder.itemView).load(uri).into(holder.imageView)
 
     }
 

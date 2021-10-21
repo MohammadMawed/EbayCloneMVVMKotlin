@@ -3,16 +3,11 @@ package com.mohammadmawed.ebayclonemvvmkotlin.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Log
-import android.widget.Adapter
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.Target
-import com.google.android.gms.tasks.OnSuccessListener
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -39,7 +34,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private var listMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
         MutableLiveData()
     private var arrayList: ArrayList<OffersModelClass> = ArrayList()
-    private var uriOfferPicMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
 
     private var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val databaseReference: DatabaseReference =
@@ -72,9 +66,6 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val listLiveData: LiveData<ArrayList<OffersModelClass>>
         get() = listMutableLiveData
 
-    val uriOfferPicLiveData: LiveData<Uri>
-        get() = uriOfferPicMutableLiveData
-
 
     fun login(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
@@ -102,6 +93,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 userEmailMutableLiveData.postValue(userEmail)
             }
         }
+        //Getting the user's profile pic
         val fileRef =
             storageReference.child("users/" + firebaseAuth.currentUser?.uid + "/profile.jpg")
         fileRef.downloadUrl.addOnSuccessListener { uri ->
@@ -129,27 +121,32 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                 for (data in snapshot.children) {
 
                     val model = data.getValue(OffersModelClass::class.java)
-                    arrayList.add(model as OffersModelClass)
 
-                    //val fileRef11 = FirebaseStorage.getInstance().reference.child(
-                   //     "offers/$imageID.jpg"
-                   // )
-                    //Log.d("ImageID >>>>  ", imageID)
-                    //fileRef11.downloadUrl.addOnSuccessListener { uri ->
-                        //uriOfferPicMutableLiveData.postValue(uri)
-                        //arrayList.add(OffersModelClass(null, null, null, null, null, null, null, null, uri))
-                  //  }
+                    //Getting the offer ID to load its images
+                    val imageID: String = model?.imageID.toString()
 
+                    val fileRef11 = FirebaseStorage.getInstance().reference.child(
+                        "offers/$imageID.jpg"
+                    )
+                    fileRef11.downloadUrl.addOnSuccessListener { uri ->
 
-                    listMutableLiveData.postValue(arrayList)
+                        //Assigning the image uri and converting it to string
+                        model?.ImageUri = uri.toString()
 
+                        //Assigning the new time format
+                        model?.Time = model?.Time?.let { calculateTimeAge(it) }
+
+                        //Adding the data to arraylist as whole to observe it from the fragment
+                        arrayList.add(model as OffersModelClass)
+
+                        listMutableLiveData.postValue(arrayList)
+                    }
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
                 TODO("Not yet implemented")
             }
-
         })
     }
 
