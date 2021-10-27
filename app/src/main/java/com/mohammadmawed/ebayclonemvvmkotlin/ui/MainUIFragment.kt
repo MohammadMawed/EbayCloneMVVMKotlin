@@ -3,6 +3,7 @@ package com.mohammadmawed.ebayclonemvvmkotlin.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,14 +15,16 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import com.bumptech.glide.Glide
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.mohammadmawed.ebayclonemvvmkotlin.R
-import com.squareup.picasso.Picasso
 
 class MainUIFragment : Fragment() {
 
     private lateinit var usernameTextView: TextView
     private lateinit var profilePic: ImageView
+    private lateinit var addNewOfferButton: FloatingActionButton
     private lateinit var recyclerView: RecyclerView
     private lateinit var swipeLayout: SwipeRefreshLayout
     private lateinit var offerAdapter: OfferAdapter
@@ -39,6 +42,7 @@ class MainUIFragment : Fragment() {
 
         usernameTextView = view.findViewById(R.id.usernameTextView)
         profilePic = view.findViewById(R.id.profilePic)
+        addNewOfferButton = view.findViewById(R.id.addButton)
         recyclerView = view.findViewById(R.id.recyclerView)
         swipeLayout = view.findViewById(R.id.swipeLayout)
 
@@ -47,23 +51,18 @@ class MainUIFragment : Fragment() {
         recyclerView.layoutManager = LinearLayoutManager(context)
         recyclerView.setHasFixedSize(true)
 
-        swipeLayout.setOnRefreshListener {
 
-            viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
-                offerAdapter = OfferAdapter(arrayList)
-                recyclerView.adapter = offerAdapter
-                offerAdapter.notifyDataSetChanged()
-
-                swipeLayout.isRefreshing = false
-            })
+        profilePic.setOnClickListener {
+            findNavController().navigate(R.id.action_mainUIFragment_to_settingFragment)
         }
-
-        profilePic.setOnClickListener(View.OnClickListener {
+        usernameTextView.setOnClickListener {
             findNavController().navigate(R.id.action_mainUIFragment_to_settingFragment)
-        })
-        usernameTextView.setOnClickListener(View.OnClickListener {
-            findNavController().navigate(R.id.action_mainUIFragment_to_settingFragment)
-        })
+        }
+        addNewOfferButton.setOnClickListener {
+            findNavController().navigate(R.id.action_mainUIFragment_to_postNewOfferFragment)
+            OfferAdapter(ArrayList<OffersModelClass>())
+            //requireActivity().finish();
+        }
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
 
@@ -71,16 +70,27 @@ class MainUIFragment : Fragment() {
         if (user != null) {
             // User is signed in
             viewModel.loadUserInfo()
-            viewModel.loadData()
+            viewModel.loadData(true)
         }
-
+        //Loading user's username
         viewModel.usernameLiveData.observe(viewLifecycleOwner, { username ->
             usernameTextView.text = username
         })
-
+        //Loading user's profile picture
         viewModel.userProfileUriLiveData.observe(viewLifecycleOwner, { profile ->
-            Picasso.get().load(profile).into(profilePic)
+            Glide.with(context).load(profile).into(profilePic)
         })
+        swipeLayout.setOnRefreshListener {
+
+            viewModel.loadData(true)
+            viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
+                offerAdapter = OfferAdapter(arrayList)
+                recyclerView.adapter = offerAdapter
+                offerAdapter.notifyDataSetChanged()
+            })
+
+            swipeLayout.isRefreshing = false
+        }
 
         viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
             offerAdapter = OfferAdapter(arrayList)
@@ -88,7 +98,7 @@ class MainUIFragment : Fragment() {
             offerAdapter.notifyDataSetChanged()
         })
 
+
         return view
     }
-
 }

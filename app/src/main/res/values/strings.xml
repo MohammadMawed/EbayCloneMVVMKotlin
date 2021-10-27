@@ -63,5 +63,18 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="new_offer">New Offer</string>
+    <string name="image">Image</string>
+    <string name="edit">Edit</string>
+
+    <string-array name="category">
+        <item>Cars</item>
+        <item>Smartphones</item>
+        <item>TVs</item>
+        <item>Computers</item>
+        <item>Laptops</item>
+        <item>Tablets</item>
+        <item>Bikes</item>
+        <item>Properties</item>
+    </string-array>
 
 </resources>
