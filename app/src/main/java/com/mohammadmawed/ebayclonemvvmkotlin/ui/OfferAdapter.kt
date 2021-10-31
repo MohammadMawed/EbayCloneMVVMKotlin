@@ -64,7 +64,7 @@ class OfferAdapter(private val dataList: ArrayList<OffersModelClass>) :
                 titleArg, descriptionArg, imageID, priceArg, cityArg, userID, categoryArg
             )
             Navigation.findNavController(holder.itemView).navigate(action)
-            dataList.clear()
+            //dataList.clear()
             //navController = Navigation.findNavController(holder.itemView)
             //navController!!.navigate(R.id.action_mainUIFragment_to_singleItemFragment)
         }

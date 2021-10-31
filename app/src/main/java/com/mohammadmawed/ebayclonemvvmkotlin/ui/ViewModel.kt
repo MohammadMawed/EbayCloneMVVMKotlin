@@ -8,7 +8,6 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.android.gms.tasks.OnSuccessListener
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -38,12 +37,14 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private var uploadSuccessfulMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
     private var listMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
         MutableLiveData()
-    var arrayList: ArrayList<OffersModelClass> = ArrayList()
+    private var savedItemListMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
+        MutableLiveData()
+    var arrayListMainUI: ArrayList<OffersModelClass> = ArrayList()
+    var arrayListSavedItem: ArrayList<OffersModelClass> = ArrayList()
 
     private var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val databaseReference: DatabaseReference =
         FirebaseDatabase.getInstance().reference.child("offers")
-    private val owmItemRef = FirebaseDatabase.getInstance().reference.child("ownItems")
     private val storageReference: StorageReference = FirebaseStorage.getInstance().reference
     private val firebaseStore: FirebaseFirestore = FirebaseFirestore.getInstance()
 
@@ -71,6 +72,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     val listLiveData: LiveData<ArrayList<OffersModelClass>>
         get() = listMutableLiveData
+
+    val savedItemListLiveData: LiveData<ArrayList<OffersModelClass>>
+        get() = savedItemListMutableLiveData
 
     val uriSingleItemLiveData: LiveData<Uri>
         get() = singleItemURIMutableLiveData
@@ -133,43 +137,88 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun loadData(reload: Boolean) {
-        if (reload) {
-            databaseReference.addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    for (data in snapshot.children) {
+    fun loadData() {
 
-                        val model = data.getValue(OffersModelClass::class.java)
+        //Resetting the ArrayList when recall the function to avoid duplication in the recyclerView
+        arrayListMainUI.clear()
 
-                        //Getting the offer ID to load its images
-                        val imageID: String = model?.imageID.toString()
+        databaseReference.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data in snapshot.children) {
 
-                        val fileRef11 = FirebaseStorage.getInstance().reference.child(
-                            "offers/$imageID.jpg"
-                        )
-                        fileRef11.downloadUrl.addOnSuccessListener { uri ->
+                    val model = data.getValue(OffersModelClass::class.java)
 
-                            //Assigning the image uri and converting it to string
-                            model?.ImageUri = uri.toString()
+                    //Getting the offer ID to load its images
+                    val imageID: String = model?.imageID.toString()
 
-                            //Assigning the new time format
-                            model?.Time = model?.Time?.let { calculateTimeAge(it) }
+                    val fileRef11 = FirebaseStorage.getInstance().reference.child(
+                        "offers/$imageID.jpg"
+                    )
+                    fileRef11.downloadUrl.addOnSuccessListener { uri ->
 
-                            //Adding the data to arraylist as whole to observe it from the fragment
-                            arrayList.add(model as OffersModelClass)
+                        //Assigning the image uri and converting it to string
+                        model?.ImageUri = uri.toString()
 
-                            listMutableLiveData.postValue(arrayList)
+                        //Assigning the new time format
+                        model?.Time = model?.Time?.let { calculateTimeAge(it) }
 
-                        }
+                        //Adding the data to arraylist as whole to observe it from the fragment
+
+                        arrayListMainUI.add(model as OffersModelClass)
+                        listMutableLiveData.postValue(arrayListMainUI)
+
                     }
-
                 }
+            }
 
-                override fun onCancelled(error: DatabaseError) {
-                    TODO("Not yet implemented")
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+
+    }
+
+    fun loadOwnOffer() {
+        val myUid = firebaseAuth.currentUser?.uid
+        val myOffersQuery = databaseReference.orderByChild("userID").equalTo(myUid)
+        myOffersQuery.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data in snapshot.children) {
+
+                    val model = data.getValue(OffersModelClass::class.java)
+
+                    //Getting the offer ID to load its images
+                    val imageID: String = model?.imageID.toString()
+
+                    Log.d("User's offer --->", imageID)
+
+                    //Getting the offer ID to load its images
+
+                    val fileRef11 = FirebaseStorage.getInstance().reference.child(
+                        "offers/$imageID.jpg"
+                    )
+                    fileRef11.downloadUrl.addOnSuccessListener { uri ->
+
+                        //Assigning the image uri and converting it to string
+                        model?.ImageUri = uri.toString()
+
+                        //Assigning the new time format
+                        model?.Time = model?.Time?.let { calculateTimeAge(it) }
+
+                        //Adding the data to arraylist as whole to observe it from the fragment
+                        arrayListSavedItem.add(model as OffersModelClass)
+
+                        savedItemListMutableLiveData.postValue(arrayListSavedItem)
+
+                    }
                 }
-            })
-        }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
+
     }
 
     fun loadImagesSingleItem(imageID: String) {
@@ -230,13 +279,8 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     hashMap["Time"] = time
                     hashMap["userID"] = firebaseAuth.currentUser!!.uid
 
-                    databaseReference.child(imageID).setValue(hashMap)
-                        .addOnSuccessListener(OnSuccessListener<Void?> {
-                            owmItemRef.child(firebaseAuth.currentUser!!.uid).child(imageID)
-                                .setValue(hashMap).addOnCompleteListener {
-                                    uploadSuccessfulMutableLiveData.postValue(true)
-                                }
-                        })
+                    //Notifying user when the upload is finished
+                    uploadSuccessfulMutableLiveData.postValue(true)
                 }
             }
 

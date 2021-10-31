@@ -1,5 +1,6 @@
 package com.mohammadmawed.ebayclonemvvmkotlin.ui
 
+import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -8,9 +9,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ImageView
+import android.widget.Switch
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.auth.FirebaseAuth
 import com.mohammadmawed.ebayclonemvvmkotlin.R
 import com.squareup.picasso.Picasso
@@ -22,9 +26,14 @@ class SettingFragment : Fragment() {
     private lateinit var usernameTextView: TextView
     private lateinit var userEmailTextView: TextView
     private lateinit var profilePic: ImageView
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var offerAdapter: OfferAdapter
+    @SuppressLint("UseSwitchCompatOrMaterialCode")
+    private lateinit var switch: Switch
 
     private lateinit var viewModel: ViewModel
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,8 +46,12 @@ class SettingFragment : Fragment() {
         usernameTextView = view.findViewById(R.id.usernameTextViewSetting)
         userEmailTextView = view.findViewById(R.id.userEmailTextView)
         profilePic = view.findViewById(R.id.profilePicSetting)
+        recyclerView = view.findViewById(R.id.favorite_recyclerView)
+        switch = view.findViewById(R.id.switch1)
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+        recyclerView.setHasFixedSize(true)
 
         logoutButton.setOnClickListener(View.OnClickListener {
             viewModel.logUserOut()
@@ -66,12 +79,24 @@ class SettingFragment : Fragment() {
             alertDialogBuilder.show()
         }
 
+        switch.setOnCheckedChangeListener { buttonView, isChecked ->
+            if (isChecked){
+                if (recyclerView.adapter == null){
+                    viewModel.loadOwnOffer()
+                }
+            }
+        }
+
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
             // User is signed in
             viewModel.loadUserInfo()
         }
-
+        viewModel.savedItemListLiveData.observe(viewLifecycleOwner, { arrayList ->
+            offerAdapter = OfferAdapter(arrayList)
+            recyclerView.adapter = offerAdapter
+            offerAdapter.notifyDataSetChanged()
+        })
         viewModel.usernameLiveData.observe(viewLifecycleOwner, { username ->
             usernameTextView.text = username
         })

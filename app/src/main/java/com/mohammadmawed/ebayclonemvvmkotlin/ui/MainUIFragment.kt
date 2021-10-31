@@ -3,7 +3,6 @@ package com.mohammadmawed.ebayclonemvvmkotlin.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
 import com.mohammadmawed.ebayclonemvvmkotlin.R
+import kotlinx.coroutines.flow.collect
 
 class MainUIFragment : Fragment() {
 
@@ -60,8 +61,6 @@ class MainUIFragment : Fragment() {
         }
         addNewOfferButton.setOnClickListener {
             findNavController().navigate(R.id.action_mainUIFragment_to_postNewOfferFragment)
-            OfferAdapter(ArrayList<OffersModelClass>())
-            //requireActivity().finish();
         }
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
@@ -70,19 +69,22 @@ class MainUIFragment : Fragment() {
         if (user != null) {
             // User is signed in
             viewModel.loadUserInfo()
-            viewModel.loadData(true)
+            viewModel.loadData()
         }
+
         //Loading user's username
         viewModel.usernameLiveData.observe(viewLifecycleOwner, { username ->
             usernameTextView.text = username
         })
+
         //Loading user's profile picture
         viewModel.userProfileUriLiveData.observe(viewLifecycleOwner, { profile ->
             Glide.with(context).load(profile).into(profilePic)
         })
+
         swipeLayout.setOnRefreshListener {
 
-            viewModel.loadData(true)
+            viewModel.loadData()
             viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
                 offerAdapter = OfferAdapter(arrayList)
                 recyclerView.adapter = offerAdapter
@@ -97,7 +99,6 @@ class MainUIFragment : Fragment() {
             recyclerView.adapter = offerAdapter
             offerAdapter.notifyDataSetChanged()
         })
-
 
         return view
     }
