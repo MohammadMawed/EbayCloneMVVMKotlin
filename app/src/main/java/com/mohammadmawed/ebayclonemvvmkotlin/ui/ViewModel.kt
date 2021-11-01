@@ -24,22 +24,27 @@ import kotlin.collections.ArrayList
 
 class ViewModel(application: Application) : AndroidViewModel(application) {
 
-    private var userMutableLiveData: MutableLiveData<FirebaseUser> = MutableLiveData()
-    private var passwordMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private var usernameMutableLiveData: MutableLiveData<String> = MutableLiveData()
-    private var uriProfilePicMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
-    private var loggedOutMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private var userEmailMutableLiveData: MutableLiveData<String> = MutableLiveData()
-    private var deleteAccountSucceedMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private var providerUsernameMutableLiveData: MutableLiveData<String> = MutableLiveData()
-    private var providerUriProfilePicMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
-    private var singleItemURIMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
-    private var uploadSuccessfulMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
-    private var listMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
+    private var _userMutableLiveData: MutableLiveData<FirebaseUser> = MutableLiveData()
+    private var _passwordMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var _usernameMutableLiveData: MutableLiveData<String> = MutableLiveData()
+    private var _uriProfilePicMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
+    private var _loggedOutMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var _userEmailMutableLiveData: MutableLiveData<String> = MutableLiveData()
+    private var _deleteAccountSucceedMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var _providerUsernameMutableLiveData: MutableLiveData<String> = MutableLiveData()
+    private var _providerUriProfilePicMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
+    private var _singleItemURIMutableLiveData: MutableLiveData<Uri> = MutableLiveData()
+    private var _uploadSuccessfulMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var _listMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
         MutableLiveData()
-    private var savedItemListMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
+    private var _ownItemListMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
         MutableLiveData()
+    private var _savedItemListMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
+        MutableLiveData()
+    private var _savedItemSuccessfullyMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+
     var arrayListMainUI: ArrayList<OffersModelClass> = ArrayList()
+    var arrayListOwnItem: ArrayList<OffersModelClass> = ArrayList()
     var arrayListSavedItem: ArrayList<OffersModelClass> = ArrayList()
 
     private var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
@@ -50,52 +55,58 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
 
     val userDataLiveData: LiveData<FirebaseUser>
-        get() = userMutableLiveData
+        get() = _userMutableLiveData
 
     val passwordLiveData: LiveData<Boolean>
-        get() = passwordMutableLiveData
+        get() = _passwordMutableLiveData
 
     val usernameLiveData: LiveData<String>
-        get() = usernameMutableLiveData
+        get() = _usernameMutableLiveData
 
     val userProfileUriLiveData: LiveData<Uri>
-        get() = uriProfilePicMutableLiveData
+        get() = _uriProfilePicMutableLiveData
 
     val logoutCheckLiveData: LiveData<Boolean>
-        get() = loggedOutMutableLiveData
+        get() = _loggedOutMutableLiveData
 
     val userEmailLiveData: LiveData<String>
-        get() = userEmailMutableLiveData
+        get() = _userEmailMutableLiveData
 
     val deleteAccountSucceedLiveData: LiveData<Boolean>
-        get() = deleteAccountSucceedMutableLiveData
+        get() = _deleteAccountSucceedMutableLiveData
 
     val listLiveData: LiveData<ArrayList<OffersModelClass>>
-        get() = listMutableLiveData
+        get() = _listMutableLiveData
+
+    val ownItemListLiveData: LiveData<ArrayList<OffersModelClass>>
+        get() = _ownItemListMutableLiveData
 
     val savedItemListLiveData: LiveData<ArrayList<OffersModelClass>>
-        get() = savedItemListMutableLiveData
+        get() = _savedItemListMutableLiveData
 
     val uriSingleItemLiveData: LiveData<Uri>
-        get() = singleItemURIMutableLiveData
+        get() = _singleItemURIMutableLiveData
 
     val providerUsernameLiveData: LiveData<String>
-        get() = providerUsernameMutableLiveData
+        get() = _providerUsernameMutableLiveData
 
     val providerUriLiveData: LiveData<Uri>
-        get() = providerUriProfilePicMutableLiveData
+        get() = _providerUriProfilePicMutableLiveData
 
     val successfulUploadLiveData: LiveData<Boolean>
-        get() = uploadSuccessfulMutableLiveData
+        get() = _uploadSuccessfulMutableLiveData
+
+    val savedItemSuccessfullyLiveData: LiveData<Boolean>
+        get() = _savedItemSuccessfullyMutableLiveData
 
     fun login(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
             Activity()
         ) {
             if (it.isSuccessful) {
-                userMutableLiveData.postValue(firebaseAuth.currentUser)
+                _userMutableLiveData.postValue(firebaseAuth.currentUser)
             } else {
-                passwordMutableLiveData.postValue(false)
+                _passwordMutableLiveData.postValue(false)
             }
         }
     }
@@ -110,29 +121,29 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
             val documentReference: DocumentReference =
                 firebaseStore.collection("users").document(userID)
             documentReference.addSnapshotListener { value, _ ->
-                usernameMutableLiveData.postValue(value!!.getString("username"))
+                _usernameMutableLiveData.postValue(value!!.getString("username"))
                 val userEmail: String = FirebaseAuth.getInstance().currentUser?.email.toString()
-                userEmailMutableLiveData.postValue(userEmail)
+                _userEmailMutableLiveData.postValue(userEmail)
             }
         }
         //Getting the user's profile pic
         val fileRef =
             storageReference.child("users/" + firebaseAuth.currentUser?.uid + "/profile.jpg")
         fileRef.downloadUrl.addOnSuccessListener { uri ->
-            uriProfilePicMutableLiveData.postValue(uri)
+            _uriProfilePicMutableLiveData.postValue(uri)
         }
     }
 
     fun logUserOut() {
         firebaseAuth.signOut()
-        loggedOutMutableLiveData.postValue(true)
+        _loggedOutMutableLiveData.postValue(true)
     }
 
     fun deleteAccount() {
         val user = FirebaseAuth.getInstance().currentUser
         user?.delete()?.addOnCompleteListener { task ->
             if (task.isSuccessful) {
-                deleteAccountSucceedMutableLiveData.postValue(true)
+                _deleteAccountSucceedMutableLiveData.postValue(true)
             }
         }
     }
@@ -165,7 +176,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                         //Adding the data to arraylist as whole to observe it from the fragment
 
                         arrayListMainUI.add(model as OffersModelClass)
-                        listMutableLiveData.postValue(arrayListMainUI)
+                        _listMutableLiveData.postValue(arrayListMainUI)
 
                     }
                 }
@@ -179,6 +190,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun loadOwnOffer() {
+        arrayListOwnItem.clear()
         val myUid = firebaseAuth.currentUser?.uid
         val myOffersQuery = databaseReference.orderByChild("userID").equalTo(myUid)
         myOffersQuery.addValueEventListener(object : ValueEventListener {
@@ -206,9 +218,9 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                         model?.Time = model?.Time?.let { calculateTimeAge(it) }
 
                         //Adding the data to arraylist as whole to observe it from the fragment
-                        arrayListSavedItem.add(model as OffersModelClass)
+                        arrayListOwnItem.add(model as OffersModelClass)
 
-                        savedItemListMutableLiveData.postValue(arrayListSavedItem)
+                        _ownItemListMutableLiveData.postValue(arrayListOwnItem)
 
                     }
                 }
@@ -221,6 +233,77 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun saveFavoriteItems(offerID: String) {
+        val userID = firebaseAuth.currentUser?.uid.toString()
+        val databaseReference1: DatabaseReference =
+            FirebaseDatabase.getInstance().reference.child("savedItem").child(userID)
+        databaseReference1.child(offerID).setValue(offerID).addOnCompleteListener {
+            //Notifying the user when the saving process is successfully done
+            _savedItemSuccessfullyMutableLiveData.postValue(true)
+        }
+    }
+
+    fun loadSavedItems() {
+        arrayListSavedItem.clear()
+        val userID = firebaseAuth.currentUser?.uid.toString()
+        val databaseReference1: DatabaseReference =
+            FirebaseDatabase.getInstance().reference.child("savedItem").child(userID)
+        databaseReference1.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data in snapshot.children) {
+
+                    val savedOfferID: String = data.value as String
+
+                    //Getting the offer ID to load its images
+
+                    val myOffersQuery =
+                        databaseReference.orderByChild("imageID").equalTo(savedOfferID)
+                    myOffersQuery.addValueEventListener(object : ValueEventListener {
+                        override fun onDataChange(snapshot: DataSnapshot) {
+                            for (data in snapshot.children) {
+
+                                val model = data.getValue(OffersModelClass::class.java)
+
+                                //Getting the offer ID to load its images
+                                val imageID: String = model?.imageID.toString()
+
+                                Log.d("User's saved offer --->", imageID)
+
+                                //Getting the offer ID to load its images
+
+                                val fileRef11 = FirebaseStorage.getInstance().reference.child(
+                                    "offers/$imageID.jpg"
+                                )
+                                fileRef11.downloadUrl.addOnSuccessListener { uri ->
+
+                                    //Assigning the image uri and converting it to string
+                                    model?.ImageUri = uri.toString()
+
+                                    //Assigning the new time format
+                                    model?.Time = model?.Time?.let { calculateTimeAge(it) }
+
+                                    //Adding the data to arraylist as whole to observe it from the fragment
+                                    arrayListSavedItem.add(model as OffersModelClass)
+
+                                    _savedItemListMutableLiveData.postValue(arrayListSavedItem)
+
+                                }
+                            }
+                        }
+
+                        override fun onCancelled(error: DatabaseError) {
+
+                        }
+                    })
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
+    }
+
     fun loadImagesSingleItem(imageID: String) {
 
         //Getting the images for a single post
@@ -229,7 +312,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         )
         fileRef11.downloadUrl.addOnSuccessListener { uri ->
 
-            singleItemURIMutableLiveData.postValue(uri)
+            _singleItemURIMutableLiveData.postValue(uri)
         }
 
     }
@@ -241,12 +324,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         val documentReference: DocumentReference =
             firebaseStore.collection("users").document(userID)
         documentReference.addSnapshotListener { value, _ ->
-            providerUsernameMutableLiveData.postValue(value!!.getString("username"))
+            _providerUsernameMutableLiveData.postValue(value!!.getString("username"))
         }
         val fileRef =
             storageReference.child("users/$userID/profile.jpg")
         fileRef.downloadUrl.addOnSuccessListener { uri ->
-            providerUriProfilePicMutableLiveData.postValue(uri)
+            _providerUriProfilePicMutableLiveData.postValue(uri)
         }
     }
 
@@ -280,7 +363,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
                     hashMap["userID"] = firebaseAuth.currentUser!!.uid
 
                     //Notifying user when the upload is finished
-                    uploadSuccessfulMutableLiveData.postValue(true)
+                    _uploadSuccessfulMutableLiveData.postValue(true)
                 }
             }
 

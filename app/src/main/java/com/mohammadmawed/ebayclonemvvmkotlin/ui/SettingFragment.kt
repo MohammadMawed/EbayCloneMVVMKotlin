@@ -84,6 +84,8 @@ class SettingFragment : Fragment() {
                 if (recyclerView.adapter == null){
                     viewModel.loadOwnOffer()
                 }
+            }else{
+                viewModel.loadSavedItems()
             }
         }
 
@@ -91,12 +93,20 @@ class SettingFragment : Fragment() {
         if (user != null) {
             // User is signed in
             viewModel.loadUserInfo()
+
         }
+        viewModel.ownItemListLiveData.observe(viewLifecycleOwner, { arrayList ->
+            offerAdapter = OfferAdapter(arrayList)
+            recyclerView.adapter = offerAdapter
+            offerAdapter.notifyDataSetChanged()
+        })
+
         viewModel.savedItemListLiveData.observe(viewLifecycleOwner, { arrayList ->
             offerAdapter = OfferAdapter(arrayList)
             recyclerView.adapter = offerAdapter
             offerAdapter.notifyDataSetChanged()
         })
+
         viewModel.usernameLiveData.observe(viewLifecycleOwner, { username ->
             usernameTextView.text = username
         })

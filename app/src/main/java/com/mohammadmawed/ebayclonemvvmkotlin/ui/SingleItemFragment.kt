@@ -6,13 +6,16 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 
 import com.mohammadmawed.ebayclonemvvmkotlin.R
 
@@ -27,6 +30,8 @@ class SingleItemFragment : Fragment() {
     private lateinit var providerUsernameTextView: TextView
     private lateinit var profilePic: ImageView
     private lateinit var imageView: ImageView
+    private lateinit var saveButton: ImageButton
+    private lateinit var rootLayout: ConstraintLayout
 
     private val args: SingleItemFragmentArgs by navArgs()
     private lateinit var viewModel: ViewModel
@@ -57,10 +62,22 @@ class SingleItemFragment : Fragment() {
         priceTextView = view.findViewById(R.id.priceView)
         imageView = view.findViewById(R.id.imageViewSingleItem)
         profilePic = view.findViewById(R.id.profilePicSingleView)
-
+        saveButton = view.findViewById(R.id.saveButton)
+        rootLayout = view.findViewById(R.id.rootLayoutSingleItem)
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
         val context: Context = container!!.context
+
+        saveButton.setOnClickListener {
+            viewModel.saveFavoriteItems(imageID)
+            viewModel.savedItemSuccessfullyLiveData.observe(viewLifecycleOwner, { status ->
+                if (status){
+                    saveButton.tag = "Saved"
+                    saveButton.setImageResource(R.drawable.ic_baseline_bookmark_24)
+                    Snackbar.make(rootLayout, "Item saved successfully", Snackbar.LENGTH_LONG).show()
+                }
+            })
+        }
 
         //We get the data from the args and set it in the TextView
         descriptionTextView.text = description
@@ -84,7 +101,7 @@ class SingleItemFragment : Fragment() {
             providerUsernameTextView.text = username
         })
 
-        val callback = requireActivity().onBackPressedDispatcher.addCallback(this) {
+        requireActivity().onBackPressedDispatcher.addCallback(this) {
             findNavController().navigate(R.id.action_singleItemFragment_to_mainUIFragment)
             // Handle the back button event
         }
