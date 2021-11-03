@@ -316,7 +316,7 @@
             android:layout_marginRight="16dp"
             android:padding="10dp"
             android:text="@string/send_message"
-            android:textColor="@color/white"
+            android:textColor="@color/blackMessages"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"

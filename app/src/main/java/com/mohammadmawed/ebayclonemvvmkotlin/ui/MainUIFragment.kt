@@ -65,9 +65,10 @@ class MainUIFragment : Fragment() {
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
 
         val user = FirebaseAuth.getInstance().currentUser
+        val userID = FirebaseAuth.getInstance().currentUser!!.uid
         if (user != null) {
             // User is signed in
-            viewModel.loadUserInfo()
+            viewModel.loadUserInfo(userID)
             viewModel.loadData()
         }
 
@@ -82,14 +83,12 @@ class MainUIFragment : Fragment() {
         })
 
         swipeLayout.setOnRefreshListener {
-
             viewModel.loadData()
             viewModel.listLiveData.observe(viewLifecycleOwner, { arrayList ->
                 offerAdapter = OfferAdapter(arrayList)
                 recyclerView.adapter = offerAdapter
                 offerAdapter.notifyDataSetChanged()
             })
-
             swipeLayout.isRefreshing = false
         }
 

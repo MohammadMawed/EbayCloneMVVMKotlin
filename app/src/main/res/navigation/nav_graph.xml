@@ -19,7 +19,7 @@
             app:destination="@id/settingFragment" />
         <action
             android:id="@+id/action_mainUIFragment_to_singleItemFragment"
-            app:destination="@id/singleItemFragment"/>
+            app:destination="@id/singleItemFragment" />
         <action
             android:id="@+id/action_mainUIFragment_to_postNewOfferFragment"
             app:destination="@id/postNewOfferFragment" />
@@ -50,7 +50,7 @@
         android:id="@+id/settingFragment"
         android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.SettingFragment"
         android:label="fragment_setting"
-        tools:layout="@layout/fragment_setting" >
+        tools:layout="@layout/fragment_setting">
         <action
             android:id="@+id/action_settingFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
@@ -59,7 +59,7 @@
         android:id="@+id/singleItemFragment"
         android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.SingleItemFragment"
         android:label="fragment_single_item"
-        tools:layout="@layout/fragment_single_item" >
+        tools:layout="@layout/fragment_single_item">
         <argument
             android:name="time"
             app:argType="string" />
@@ -87,15 +87,28 @@
         <action
             android:id="@+id/action_singleItemFragment_to_mainUIFragment"
             app:destination="@id/mainUIFragment" />
+        <action
+            android:id="@+id/action_singleItemFragment_to_chattingFragment"
+            app:destination="@id/chattingFragment" />
     </fragment>
     <fragment
         android:id="@+id/postNewOfferFragment"
         android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.PostNewOfferFragment"
         android:label="fragment_post_new_offer"
-        tools:layout="@layout/fragment_post_new_offer" >
+        tools:layout="@layout/fragment_post_new_offer">
         <action
             android:id="@+id/action_postNewOfferFragment_to_mainUIFragment"
             app:destination="@id/mainUIFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/chattingFragment"
+        android:name="com.mohammadmawed.ebayclonemvvmkotlin.ui.ChattingFragment"
+        android:label="fragment_chatting"
+        tools:layout="@layout/fragment_chatting">
+        <argument
+            android:name="userID"
+            app:argType="string" />
+    </fragment>
+
 
 </navigation>

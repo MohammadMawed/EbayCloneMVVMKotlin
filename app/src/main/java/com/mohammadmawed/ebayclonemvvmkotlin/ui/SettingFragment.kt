@@ -90,9 +90,10 @@ class SettingFragment : Fragment() {
         }
 
         val user = FirebaseAuth.getInstance().currentUser
+        val userID = FirebaseAuth.getInstance().currentUser!!.uid
         if (user != null) {
             // User is signed in
-            viewModel.loadUserInfo()
+            viewModel.loadUserInfo(userID)
 
         }
         viewModel.ownItemListLiveData.observe(viewLifecycleOwner, { arrayList ->

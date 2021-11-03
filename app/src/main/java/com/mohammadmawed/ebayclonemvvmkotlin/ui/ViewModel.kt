@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 
 class ViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -42,10 +43,14 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     private var _savedItemListMutableLiveData: MutableLiveData<ArrayList<OffersModelClass>> =
         MutableLiveData()
     private var _savedItemSuccessfullyMutableLiveData: MutableLiveData<Boolean> = MutableLiveData()
+    private var _messageSentSuccessfullyMutableLiveData: MutableLiveData<Boolean> =
+        MutableLiveData()
+    private var _messageMutableLiveData: MutableLiveData<ArrayList<ChatContentModelClass>> = MutableLiveData()
 
     var arrayListMainUI: ArrayList<OffersModelClass> = ArrayList()
     var arrayListOwnItem: ArrayList<OffersModelClass> = ArrayList()
     var arrayListSavedItem: ArrayList<OffersModelClass> = ArrayList()
+    var arrayListMessage: ArrayList<ChatContentModelClass> = ArrayList()
 
     private var firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val databaseReference: DatabaseReference =
@@ -99,6 +104,12 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
     val savedItemSuccessfullyLiveData: LiveData<Boolean>
         get() = _savedItemSuccessfullyMutableLiveData
 
+    val messageSentSuccessfullyLiveData: LiveData<Boolean>
+        get() = _messageSentSuccessfullyMutableLiveData
+
+    val messageLivData: LiveData<ArrayList<ChatContentModelClass>>
+        get() = _messageMutableLiveData
+
     fun login(email: String, password: String) {
         firebaseAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(
             Activity()
@@ -111,8 +122,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun loadUserInfo() {
-        val userID: String = FirebaseAuth.getInstance().currentUser!!.uid
+    fun loadUserInfo(userID: String) {
         val user = FirebaseAuth.getInstance().currentUser
 
         //Getting the user's email
@@ -128,7 +138,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         }
         //Getting the user's profile pic
         val fileRef =
-            storageReference.child("users/" + firebaseAuth.currentUser?.uid + "/profile.jpg")
+            storageReference.child("users/$userID/profile.jpg")
         fileRef.downloadUrl.addOnSuccessListener { uri ->
             _uriProfilePicMutableLiveData.postValue(uri)
         }
@@ -153,7 +163,7 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
         //Resetting the ArrayList when recall the function to avoid duplication in the recyclerView
         arrayListMainUI.clear()
 
-        databaseReference.addValueEventListener(object : ValueEventListener {
+        databaseReference.addValueEventListener(object: ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 for (data in snapshot.children) {
 
@@ -369,12 +379,69 @@ class ViewModel(application: Application) : AndroidViewModel(application) {
 
     }
 
+    fun sendMessage(message: String, receiverID: String) {
+
+        val senderID = firebaseAuth.currentUser?.uid.toString()
+
+        if (message.isNotEmpty()) {
+            val calender: Calendar = Calendar.getInstance()
+            @SuppressLint("SimpleDateFormat") val df = SimpleDateFormat("dd-MM-yyyy HH:mm a")
+            val time: String = df.format(calender.time)
+
+            //Creating hashmap to upload it to firebase
+            val chatHashMap = HashMap<String, String>()
+            chatHashMap["message"] = message
+            chatHashMap["time"] = time
+            chatHashMap["receiverID"] = receiverID
+            chatHashMap["senderID"] = senderID
+
+            val databaseReference2: DatabaseReference =
+                FirebaseDatabase.getInstance().reference.child("Chats")
+            databaseReference2.child(receiverID).child(senderID).push().setValue(chatHashMap)
+                .addOnCompleteListener {
+                    databaseReference2.child(senderID).child(receiverID).push()
+                        .setValue(chatHashMap)
+                        .addOnCompleteListener {
+                            if (it.isSuccessful) {
+                                _messageSentSuccessfullyMutableLiveData.value = true
+                            }
+                        }
+                }
+        }
+    }
+    fun loadMessages(providerID: String){
+        arrayListMessage.clear()
+        val userID = firebaseAuth.currentUser!!.uid
+        val databaseReference3: DatabaseReference =
+            FirebaseDatabase.getInstance().reference.child("Chats").child(userID).child(providerID)
+
+        databaseReference3.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                for (data in snapshot.children) {
+
+                    val model = data.getValue(ChatContentModelClass::class.java)
+
+                    //Getting the messages
+                    //val message: String = model?.message.toString()
+                    //Log.d("Message From: ", message)
+
+                    arrayListMessage.add(model as ChatContentModelClass)
+
+                    _messageMutableLiveData.postValue(arrayListMessage)
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                TODO("Not yet implemented")
+            }
+        })
+    }
+
     fun calculateTimeAge(time: String): String? {
         var convTime: String? = null
         val prefix = ""
         val suffix = "ago"
         try {
-            @SuppressLint("SimpleDateFormat") val dateFormat =
+            @SuppressLint("SimpleDateFormat") val dateFormat = 
                 SimpleDateFormat("dd-MM-yyyy HH:mm a")
             val pasTime = dateFormat.parse(time)
             val nowTime = Date()

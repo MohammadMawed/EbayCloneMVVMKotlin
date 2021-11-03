@@ -6,12 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bumptech.glide.Glide
@@ -31,6 +33,7 @@ class SingleItemFragment : Fragment() {
     private lateinit var profilePic: ImageView
     private lateinit var imageView: ImageView
     private lateinit var saveButton: ImageButton
+    private lateinit var sendButton: Button
     private lateinit var rootLayout: ConstraintLayout
 
     private val args: SingleItemFragmentArgs by navArgs()
@@ -63,6 +66,7 @@ class SingleItemFragment : Fragment() {
         imageView = view.findViewById(R.id.imageViewSingleItem)
         profilePic = view.findViewById(R.id.profilePicSingleView)
         saveButton = view.findViewById(R.id.saveButton)
+        sendButton = view.findViewById(R.id.sendButton)
         rootLayout = view.findViewById(R.id.rootLayoutSingleItem)
 
         viewModel = ViewModelProvider(requireActivity()).get(ViewModel::class.java)
@@ -78,8 +82,12 @@ class SingleItemFragment : Fragment() {
                 }
             })
         }
+        sendButton.setOnClickListener {
+            val action = SingleItemFragmentDirections.actionSingleItemFragmentToChattingFragment(userID)
+            Navigation.findNavController(view).navigate(action)
+        }
 
-        //We get the data from the args and set it in the TextView
+        //We get the data from the args and set them in TextViews
         descriptionTextView.text = description
         cityTextView.text = location
         categoryTextView.text = category
